@@ -1,0 +1,53 @@
+name: 'ECS Deploy Runner Invoker'
+description: 'Invoke the ECS Deploy Runner from a GitHub Actions workflow'
+inputs:
+  gruntwork-installer-version:
+    description: 'gruntwork-installer version'
+    required: true
+    default: 'v0.0.34'
+  terraform-aws-ci-version:
+    description: 'terraform-aws-ci version'
+    required: true
+    default: 'v0.29.10'
+  terraform-aws-security-version:
+    description: 'terraform-aws-security version'
+    required: true
+    default: 'v0.44.10'
+  main-branch-name:
+    description: 'Name of the main branch of the repository'
+    required: true
+    default: 'main'
+  aws-account-id:
+    description: "AWS account ID where the ECS deploy runner is being invoked"
+    required: true
+  region:
+    description: 'Region of the ECS Deploy Runner'
+    required: true
+  command:
+    description: 'Command to run (plan/apply)'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - id: set-base-ref
+      run: |
+        if [[ "$GITHUB_REF" == "refs/heads/${{ inputs.main-branch-name }}" ]]; then
+          echo 'SOURCE_REF=HEAD^' >> $GITHUB_ENV
+        else
+          echo 'SOURCE_REF=origin/${{ inputs.main-branch-name }}' >> $GITHUB_ENV
+        fi
+      shell: bash
+    - id: set-friendly-ref
+      run: |
+        if [[ ! -z "$GITHUB_HEAD_REF" ]]; then
+          echo 'FRIENDLY_REF=${{ github.event.pull_request.head.sha }}' >> $GITHUB_ENV
+        else
+          echo 'FRIENDLY_REF=$GITHUB_REF' >> $GITHUB_ENV
+        fi
+      shell: bash
+    - id: install-helpers
+      run: ${{ github.action_path }}/helpers/install.sh ${{ inputs.gruntwork-installer-version }} ${{ inputs.terraform-aws-ci-version }} ${{ inputs.terraform-aws-security-version }}
+      shell: bash
+    - id: run-command
+      run: ${{ github.action_path }}/helpers/deploy.sh ${{ inputs.aws-account-id }} ${{ inputs.region }} ${{ env.SOURCE_REF }} git@github.com:${{ github.repository }}.git ${{ env.FRIENDLY_REF }} ${{ inputs.command }}
+      shell: bash
