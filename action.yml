@@ -17,26 +17,12 @@ inputs:
     description: 'Name of the main branch of the repository'
     required: true
     default: 'main'
-  aws-account-id:
-    description: "AWS account ID where the ECS deploy runner is being invoked"
-    required: true
-  region:
-    description: 'Region of the ECS Deploy Runner'
-    required: true
   command:
     description: 'Command to run (plan/apply)'
     required: true
 runs:
   using: "composite"
   steps:
-    - id: set-base-ref
-      run: |
-        if [[ "$GITHUB_REF" == "refs/heads/${{ inputs.main-branch-name }}" ]]; then
-          echo 'SOURCE_REF=HEAD^' >> $GITHUB_ENV
-        else
-          echo 'SOURCE_REF=origin/${{ inputs.main-branch-name }}' >> $GITHUB_ENV
-        fi
-      shell: bash
     - id: set-friendly-ref
       run: |
         if [[ ! -z "$GITHUB_HEAD_REF" ]]; then
@@ -49,5 +35,5 @@ runs:
       run: ${{ github.action_path }}/helpers/install.sh ${{ inputs.gruntwork-installer-version }} ${{ inputs.terraform-aws-ci-version }} ${{ inputs.terraform-aws-security-version }}
       shell: bash
     - id: run-command
-      run: ${{ github.action_path }}/helpers/deploy.sh ${{ inputs.aws-account-id }} ${{ inputs.region }} ${{ env.SOURCE_REF }} git@github.com:${{ github.repository }}.git ${{ env.FRIENDLY_REF }} ${{ inputs.command }}
+      run: ${{ github.action_path }}/helpers/deploy.sh ${{ env.AWS_ACCOUNT_ID }} ${{ env.AWS_REGION }} git@github.com:${{ github.repository }}.git ${{ env.FRIENDLY_REF }} ${{ inputs.command }}
       shell: bash
