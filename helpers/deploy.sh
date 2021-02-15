@@ -32,7 +32,7 @@ function invoke_infrastructure_deployer {
   fi
 
   (eval "$assume_role_exports" && \
-    infrastructure-deployer --aws-region "$region" -- "$container" infrastructure-deploy-script --repo "$repo" --ref "$ref" --binary "terragrunt" --command "$command")
+    infrastructure-deployer --aws-region "$region" -- "$container" infrastructure-deploy-script --repo "$repo" --ref "$ref" --binary "terragrunt" --command "$command" --deploy-path "$GITHUB_WORKSPACE/environments/$GITHUB_WORKFLOW")
 }
 
 invoke_infrastructure_deployer "$@"
