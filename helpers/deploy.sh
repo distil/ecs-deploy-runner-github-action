@@ -6,8 +6,7 @@
 # - AWS_ACCOUNT_ID : The ID of the AWS account where this is being deployed.
 # - REGION : The AWS Region where the ECS Deploy Runner exists.
 # - REPO : Repository that is being deployed.
-# - REF : The end point for identifying all the changes. The diff between SOURCE_REF and REF will be evaluated to
-#         determine all the changed files.
+# - REF : The git ref against which the infrastructure deployer is invoked.
 # - COMMAND : The command to run. Should be one of plan or apply.
 #
 
