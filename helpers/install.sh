@@ -3,7 +3,7 @@
 # Script used by GitHub Actions to install the necessary helpers for the CI/CD pipeline
 #
 
-set -euxo pipefail
+set -euo pipefail
 
 function run {
   local -r gruntwork_installer_version="$1"
