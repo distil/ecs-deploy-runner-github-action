@@ -63,59 +63,90 @@ The Terragrunt code is expected to be stored in directory `test-123456789123/us-
 won't be able to see all the branches on pull requests.
 
 ```yaml
+# The name of the workflow - this should match the path where the configuration to be deployed is kept
 name: test-123456789123/us-east-1/dev
 on:
+  # Trigger the workflow on pushes to the main branch
   push:
     branches:
       - main
     paths:
+      # Optional, but recommended - only trigger this workflow on commits to this path
       - 'test-123456789123/us-east-1/dev/**'
-
+  
+  # Trigger the workflow on all pull requests
   pull_request:
     paths:
+      # Optional, but recommended - only trigger this workflow on commits to this path
       - 'test-123456789123/us-east-1/dev/**'
 
+# Required environment variables
 env:
-  AWS_ACCOUNT_ID: "123456789123"
-  AWS_REGION: "us-east-1"
+  AWS_ACCOUNT_ID: "123456789123"  # AWS account ID into which the configuration is being deployed
+  AWS_REGION: "us-east-1"  # AWS region that hosts the ECS Deploy Runner
+  GITHUB_OAUTH_TOKEN: ${{ secrets.GRUNTWORK_OAUTH_TOKEN }}  # GitHub personal access token with access to Gruntwork
 
 jobs:
 
+  # This job performs a terragrunt plan-all
   plan:
-    environment:
+    # Optional - define the GitHub Environment in which this job is executed. This is useful for things such as setting
+    # environment-specific variables such as AWS credentials
+    environment:  
       name: test-123456789123
+    # Job specific environment variables - recommended to be populated from the GitHub environment assigned to the job
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      GITHUB_OAUTH_TOKEN: ${{ secrets.GRUNTWORK_OAUTH_TOKEN }}
     runs-on: ubuntu-latest
 
     steps:
+      # Check out the repository
       - name: checkout
         uses: actions/checkout@v2
         with:
+          # Use fetch-depth: 0 to make sure all branches are fetched as they must be visible to the ECS Deploy Runner
           fetch-depth: 0
+      # Invoke the ECS Deploy Runner with the terragrunt plan-all action. The command will be invoked from the path
+      # that matches the workflow name (in this example it is test-123456789123/us-east-1/dev), and using the AWS
+      # credentials supplied as job environment variables
       - name: plan
         uses: distil/ecs-deploy-runner-github-action@main
         with:
           command: plan-all
-
+  
+  # This job performs a terragrunt apply-all
   apply:
+    # It will only run after a successful plan job that is described in the previous section
     needs: plan
+    # Optional - define the GitHub Environment in which this job is executed. This is useful for things such as setting
+    # environment-specific variables such as AWS credentials.
+    #
+    # It is possible to include an approval step here by configuring GitHub Environment protection rules, and setting
+    # the environment to require approval before deployment. At the time of writing this GitHub Environments are a beta
+    # feature and do not support only requiring approvals in specific jobs, so to achieve a worflow run where a
+    # terragrunt plan runs without requiring approval, while an apply does need to be approved, two separate
+    # environments can be set up - e.g. with '-plan' and '-apply' suffixes, and only the '-apply' environment could
+    # contain the protection rules (and both environments would have the same secrets defined).
     environment:
       name: test-123456789123
     env:
+      # Job specific environment variables - recommended to be populated from the GitHub environment assigned to the job
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      GITHUB_OAUTH_TOKEN: ${{ secrets.GRUNTWORK_OAUTH_TOKEN }}
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
 
     steps:
+      # Check out the repository
       - name: checkout
         uses: actions/checkout@v2
         with:
+          # Use fetch-depth: 0 to make sure all branches are fetched as they must be visible to the ECS Deploy Runner
           fetch-depth: 0
+      # Invoke the ECS Deploy Runner with the terragrunt apply-all action. The command will be invoked from the path
+      # that matches the workflow name (in this example it is test-123456789123/us-east-1/dev), and using the AWS
+      # credentials supplied as job environment variables
       - name: apply
         uses: distil/ecs-deploy-runner-github-action@main
         with:
