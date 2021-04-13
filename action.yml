@@ -4,7 +4,7 @@ inputs:
   gruntwork-installer-version:
     description: 'gruntwork-installer version'
     required: true
-    default: 'v0.0.34'
+    default: 'v0.0.36'
   terraform-aws-ci-version:
     description: 'terraform-aws-ci version'
     required: true
