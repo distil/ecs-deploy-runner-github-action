@@ -26,7 +26,7 @@ runs:
     - id: set-friendly-ref
       run: |
         if [[ ! -z "$GITHUB_HEAD_REF" ]]; then
-          echo 'FRIENDLY_REF=${{ github.event.pull_request.head.sha }}' >> $GITHUB_ENV
+          echo 'FRIENDLY_REF=${{ github.event.pull_request.head.ref }}' >> $GITHUB_ENV
         else
           echo 'FRIENDLY_REF=$GITHUB_REF' >> $GITHUB_ENV
         fi
