@@ -38,7 +38,7 @@ function invoke_infrastructure_deployer {
     infrastructure-deployer --aws-region "$region" -- "$container" infrastructure-deploy-script --repo git@github.com:"$repo" --ref "$ref" --binary "terragrunt" --command "$command" --deploy-path "$GITHUB_WORKFLOW")
   elif [[ "$container" == "docker-image-builder" ]]; then
   (eval "$assume_role_exports" && \
-    infrastructure-deployer --aws-region "$region" -- "$container" build-docker-image --repo https://github.com/"$repo" --ref "$ref" --command "$command" --context-path "$GITHUB_WORKFLOW" --docker-image-tag "$aws_account_id.dkr.ecr.$region.amazonaws.com/$GITHUB_WORKFLOW:$ref")
+    infrastructure-deployer --aws-region "$region" -- "$container" build-docker-image --repo https://github.com/"$repo" --ref "$ref" --context-path "$GITHUB_WORKFLOW" --docker-image-tag "$aws_account_id.dkr.ecr.$region.amazonaws.com/$GITHUB_WORKFLOW:$ref")
   fi
 
 }
