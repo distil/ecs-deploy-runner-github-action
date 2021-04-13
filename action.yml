@@ -39,5 +39,5 @@ runs:
       run: ${{ github.action_path }}/helpers/install.sh ${{ inputs.gruntwork-installer-version }} ${{ inputs.terraform-aws-ci-version }} ${{ inputs.terraform-aws-security-version }}
       shell: bash
     - id: run-command
-      run: ${{ github.action_path }}/helpers/deploy.sh ${{ env.AWS_ACCOUNT_ID }} ${{ env.AWS_REGION }} ${{ github.repository }}.git ${{ env.FRIENDLY_REF }} ${{ inputs.command }} "${{ inputs.build_args }}"
+      run: ${{ github.action_path }}/helpers/deploy.sh ${{ env.AWS_ACCOUNT_ID }} ${{ env.AWS_REGION }} ${{ github.repository }}.git ${{ env.FRIENDLY_REF }} ${{ inputs.command }} '${{ inputs.build_args }}'
       shell: bash
