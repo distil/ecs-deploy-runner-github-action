@@ -27,12 +27,20 @@ function invoke_infrastructure_deployer {
   local container
   if [[ "$command" == "plan" ]] || [[ "$command" == "plan-all" ]] || [[ "$command" == "validate" ]] || [[ "$command" == "validate-all" ]]; then
     container="terraform-planner"
-  else
+  elif [[ "$command" == "apply" ]] || [[ "$command" == "apply-all" ]]; then
     container="terraform-applier"
+  elif [[ "$command" == "docker-image-build" ]]; then
+    container="docker-image-builder"
   fi
 
+  if [[ "$container" == "terraform-planner" ]] || [[ "$container" == "terraform-applier" ]]; then
   (eval "$assume_role_exports" && \
-    infrastructure-deployer --aws-region "$region" -- "$container" infrastructure-deploy-script --repo "$repo" --ref "$ref" --binary "terragrunt" --command "$command" --deploy-path "$GITHUB_WORKFLOW")
+    infrastructure-deployer --aws-region "$region" -- "$container" infrastructure-deploy-script --repo git@github.com:"$repo" --ref "$ref" --binary "terragrunt" --command "$command" --deploy-path "$GITHUB_WORKFLOW")
+  elif [[ "$container" == "docker-image-builder" ]]; then
+  (eval "$assume_role_exports" && \
+    infrastructure-deployer --aws-region "$region" -- "$container" build-docker-image --repo https://github.com/"$repo" --ref "$ref" --command "$command" --context-path "$GITHUB_WORKFLOW" --docker-image-tag "$aws_account_id.dkr.ecr.$region.amazonaws.com/$GITHUB_WORKFLOW:$ref")
+  fi
+
 }
 
 invoke_infrastructure_deployer "$@"
