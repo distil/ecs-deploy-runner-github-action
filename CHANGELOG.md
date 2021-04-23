@@ -5,12 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.2] - 2021-04-13
+## [0.1.2] - 2021-04-23
 
 ### Changed
 
 - Added support for `docker-image-builder` via the `docker-image-build` command.
-  - The new command expects the exact same inputs as the previously available Terragrunt commands.
+  - The new command expects an additional optional `build_args` input that provides a string of build arguments
+    that will be passed into the Docker container that is being built. 
+    - Multiple arguments must be supplied to the action as multiple instances of the `--build-arg` flag like this - 
+      `build_args: --build-arg ARG1 --build-arg ARG2`.
 
 ## [0.1.1] - 2021-03-04 
 
