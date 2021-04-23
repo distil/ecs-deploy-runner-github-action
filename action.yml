@@ -27,7 +27,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - id: set-friendly-ref
+    # Set the git ref to the commit SHA when building from PRs, otherwise use the branch ref.
+    # This is used for the terraform builder that accepts the SHA, and works around GitHub Actions inconsistencies
+    # where refs/heads is not always prepended to the default environment variable values when referencing branches.
+    - id: set-terraform-builder-ref
       run: |
         if [[ ! -z "$GITHUB_HEAD_REF" ]]; then
           echo 'FRIENDLY_REF=${{ github.event.pull_request.head.sha }}' >> $GITHUB_ENV
@@ -35,6 +38,19 @@ runs:
           echo 'FRIENDLY_REF=$GITHUB_REF' >> $GITHUB_ENV
         fi
       shell: bash
+    # Explicitly prepend refs/heads to PR HEAD branch name on PRs as GitHub Actions has no built in way to do that.
+    # This is required because the kaniko script used with the Docker image builder can't properly parse a commit SHA
+    # on checkouts.
+    - id: set-docker-builder-ref
+      run: |
+        if [[ ! -z "$GITHUB_HEAD_REF" ]]; then
+          echo 'FRIENDLY_REF=refs/heads/$GITHUB_HEAD_REF' >> $GITHUB_ENV
+        else
+          echo 'FRIENDLY_REF=$GITHUB_REF' >> $GITHUB_ENV
+        fi
+      shell: bash
+    # Parse the release tag from the default environment variable as there is no built in one that doesn't prepend
+    # refs/tags (and that prefix is annoying when trying to tag Docker images).
     - id: set-version
       run: |
         if [[ ! -z "$GITHUB_HEAD_REF" ]]; then
