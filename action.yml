@@ -33,9 +33,9 @@ runs:
     - id: set-terraform-builder-ref
       run: |
         if [[ ! -z "$GITHUB_HEAD_REF" ]]; then
-          echo 'FRIENDLY_REF=${{ github.event.pull_request.head.sha }}' >> $GITHUB_ENV
+          echo 'TERRAFORM_REF=${{ github.event.pull_request.head.sha }}' >> $GITHUB_ENV
         else
-          echo 'FRIENDLY_REF=$GITHUB_REF' >> $GITHUB_ENV
+          echo 'TERRAFORM_REF=$GITHUB_REF' >> $GITHUB_ENV
         fi
       shell: bash
     # Explicitly prepend refs/heads to PR HEAD branch name on PRs as GitHub Actions has no built in way to do that.
@@ -44,9 +44,9 @@ runs:
     - id: set-docker-builder-ref
       run: |
         if [[ ! -z "$GITHUB_HEAD_REF" ]]; then
-          echo 'FRIENDLY_REF=refs/heads/$GITHUB_HEAD_REF' >> $GITHUB_ENV
+          echo 'DOCKER_REF=refs/heads/$GITHUB_HEAD_REF' >> $GITHUB_ENV
         else
-          echo 'FRIENDLY_REF=$GITHUB_REF' >> $GITHUB_ENV
+          echo 'DOCKER_REF=$GITHUB_REF' >> $GITHUB_ENV
         fi
       shell: bash
     # Parse the release tag from the default environment variable as there is no built in one that doesn't prepend
@@ -66,5 +66,5 @@ runs:
       run: ${{ github.action_path }}/helpers/install.sh ${{ inputs.gruntwork-installer-version }} ${{ inputs.terraform-aws-ci-version }} ${{ inputs.terraform-aws-security-version }}
       shell: bash
     - id: run-command
-      run: ${{ github.action_path }}/helpers/deploy.sh ${{ env.AWS_ACCOUNT_ID }} ${{ env.AWS_REGION }} ${{ github.repository }}.git ${{ env.FRIENDLY_REF }} ${{ env.VERSION }} ${{ inputs.command }}
+      run: ${{ github.action_path }}/helpers/deploy.sh ${{ env.AWS_ACCOUNT_ID }} ${{ env.AWS_REGION }} ${{ github.repository }}.git ${{ env.TERRAFORM_REF }} ${{ env.DOCKER_REF }} ${{ env.VERSION }} ${{ inputs.command }}
       shell: bash
