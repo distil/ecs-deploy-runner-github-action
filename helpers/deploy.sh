@@ -10,7 +10,7 @@
 # - COMMAND : The command to run. Should be one of plan or apply.
 #
 
-set -euxo pipefail
+set -euo pipefail
 
 # Function that invoke the ECS Deploy Runner using the infrastructure-deployer CLI. This will also make sure to assume
 # the correct IAM role.
