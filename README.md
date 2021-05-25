@@ -23,10 +23,12 @@ repository that requires it. This is heavily based on
   - `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` - AWS credentials for the machine user that invokes the ECS deploy
     runner.
   - `GITHUB_OAUTH_TOKEN` - GitHub personal auth token that can be used to reach Gruntworks repositories.
-- A mandatory input variable `command` that currently accepts the following values to execute the respective
-  `terragrunt` commands via the ECS deploy runner:
-  - `plan` and `plan-all`
-  - `apply` and `apply-all`
+- A mandatory input variable `command` that currently accepts the following values to execute these commands via the
+  ECS deploy runner:
+  - `plan` and `plan-all` (Terragrunt)
+  - `apply` and `apply-all` (Terragrunt)
+  - `docker-image-build` (Docker)
+- A mandatory input variable `context` must be set to the path in which the `command` will be executed.
 
 The action also accepts the following optional inputs:
 
@@ -36,6 +38,9 @@ The action also accepts the following optional inputs:
   - `terraform-aws-security-version`
 - The name of the main branch of the repository can be set via the following option (defaults to `main`):
   - `main-branch-name`
+- When using the `docker-image-build` command, a `build_args` input variable can be used to populate the Docker build
+  time arguments. The variable must be populated similar to how it would work when using the `docker build` command,
+  with each separate argument being prepended with `--build-arg` - e.g. `build_args: --build-arg ARG1 --build-arg ARG2`.
 
 ### Components
 
