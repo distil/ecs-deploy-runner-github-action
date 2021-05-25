@@ -20,6 +20,9 @@ inputs:
   command:
     description: 'Command to run (plan/apply/docker-image-build)'
     required: true
+  context:
+    description: 'Context directory in which the deploy runner command will be invoked'
+    required: true
   build_args:
     description: 'Build time arguments to use when building Docker images'
     required: false
@@ -61,6 +64,9 @@ runs:
       shell: bash
     - id: set-build-args
       run: echo 'BUILD_ARGS=${{ inputs.build_args }}' >> $GITHUB_ENV
+      shell: bash
+    - id: set-context
+      run: echo 'CONTEXT=${{ inputs.context }}' >> $GITHUB_ENV
       shell: bash
     - id: install-helpers
       run: ${{ github.action_path }}/helpers/install.sh ${{ inputs.gruntwork-installer-version }} ${{ inputs.terraform-aws-ci-version }} ${{ inputs.terraform-aws-security-version }}
