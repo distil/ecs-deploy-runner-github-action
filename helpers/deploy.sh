@@ -37,10 +37,10 @@ function invoke_infrastructure_deployer {
 
   if [[ "$container" == "terraform-planner" ]] || [[ "$container" == "terraform-applier" ]]; then
   (eval "$assume_role_exports" && \
-    infrastructure-deployer --aws-region "$region" -- "$container" infrastructure-deploy-script --repo git@github.com:"$repo" --ref "$tf_ref" --binary "terragrunt" --command "$command" --deploy-path "$GITHUB_WORKFLOW")
+    infrastructure-deployer --aws-region "$region" -- "$container" infrastructure-deploy-script --repo git@github.com:"$repo" --ref "$tf_ref" --binary "terragrunt" --command "$command" --deploy-path "$CONTEXT")
   elif [[ "$container" == "docker-image-builder" ]]; then
   (eval "$assume_role_exports" && \
-    infrastructure-deployer --aws-region "$region" -- "$container" build-docker-image --repo https://github.com/"$repo" --ref "$docker_ref" --context-path "$GITHUB_WORKFLOW" --docker-image-tag "$aws_account_id.dkr.ecr.$region.amazonaws.com/$GITHUB_WORKFLOW:$version" $BUILD_ARGS)
+    infrastructure-deployer --aws-region "$region" -- "$container" build-docker-image --repo https://github.com/"$repo" --ref "$docker_ref" --context-path "$CONTEXT" --docker-image-tag "$aws_account_id.dkr.ecr.$region.amazonaws.com/$CONTEXT:$version" $BUILD_ARGS)
   fi
 
 }
